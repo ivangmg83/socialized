@@ -22,7 +22,7 @@ module.exports = {
       .then((dbUserData) => res.json(dbUserData))
       .catch((err) => res.status(500).json(err));
   },
-
+ // updates a user by userId
   updateUser(req, res) {
     User.findOneAndUpdate(
       { _id: req.params.userId },
@@ -39,6 +39,7 @@ module.exports = {
         res.status(500).json(err);
       });
   },
+   // delete a user by userId
   deleteUser(req, res) {
     User.findOneAndRemove(
       { _id: req.params.userId },
@@ -53,4 +54,34 @@ module.exports = {
       }
     );
   },
+  
+    //add a friend
+    addFriend(req, res) {
+      User.findOneAndUpdate(
+        { _id: req.params.userId },
+        { $addToSet: { friends: req.params.friendId } },
+        { runValidators: true, new: true }
+      )
+        .then((user) =>
+          !user
+            ? res.status(404).json({ message: "No User find with this id!" })
+            : res.json(user)
+        )
+        .catch((err) => res.status(500).json(err));
+    },
+    //delete a friend
+    deleteFriend(req, res) {
+      User.findOneAndUpdate(
+        { _id: req.params.userId },
+        { $pull: { friends: req.params.friendId } },
+        { new: true }
+      )
+        .then(
+          (user) =>
+            !user
+              ? res.status(404).json({ message: "No User find with this id!" })
+              : res.json(user)
+        )
+        .catch((err) => res.status(500).json(err));
+    },
 };
